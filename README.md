@@ -9,6 +9,6 @@ https://www.youtube.com/watch?v=u6sahb7Hmog - Intro to Data Science with R - Dat
 https://www.youtube.com/watch?v=aMV_6LmCs4Q - Intro to Data Science with R - Data Analysis Part 3  
 https://www.youtube.com/watch?v=UHJH7w9q4Lc - Intro to Data Science with R - Exploratory Modeling 1  
 
-Links viewed and included in a portion of the code:
+Links viewed and included in a portion of the code:  
 http://will-stanton.com/machine-learning-with-r-an-irresponsibly-fast-tutorial/ 
 ^- Machine Learning with R: An Irresponsibly Fast Tutorial
