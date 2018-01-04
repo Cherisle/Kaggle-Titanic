@@ -3,7 +3,7 @@ Joint-effort with Henry Vu in applying feature engineering, data massaging, and 
 
 We carefully went through and watched the videos of Dave Langer, as well as read and followed some instructions from Will Stanton, to learn about the importance of understanding your data, prior to using models that would predict with a "good" error percentage.
 
-Videos watched and thoroughly discussed in-person are listed below:
+Videos watched and thoroughly discussed in-person are listed below: \n
 https://www.youtube.com/watch?v=32o0DnuRjfg 
 - Introduction to Data Science with R - Data Analysis Part 1
 https://www.youtube.com/watch?v=u6sahb7Hmog 
