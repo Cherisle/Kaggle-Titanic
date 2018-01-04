@@ -5,13 +5,13 @@ We carefully went through and watched the videos of Dave Langer, as well as read
 
 Videos watched and thoroughly discussed in-person are listed below:
 https://www.youtube.com/watch?v=32o0DnuRjfg 
-^- Introduction to Data Science with R - Data Analysis Part 1
+- Introduction to Data Science with R - Data Analysis Part 1
 https://www.youtube.com/watch?v=u6sahb7Hmog 
-^- Introduction to Data Science with R - Data Analysis Part 2
+- Introduction to Data Science with R - Data Analysis Part 2
 https://www.youtube.com/watch?v=aMV_6LmCs4Q 
-^- Introduction to Data Science with R - Data Analysis Part 3
+- Introduction to Data Science with R - Data Analysis Part 3
 https://www.youtube.com/watch?v=UHJH7w9q4Lc 
-^- Introduction to Data Science with R - Exploratory Modeling 1
+- Introduction to Data Science with R - Exploratory Modeling 1
 
 Links viewed and included in a portion of the code:
 http://will-stanton.com/machine-learning-with-r-an-irresponsibly-fast-tutorial/ 
