@@ -379,6 +379,54 @@ rf.7 <- randomForest(x = rf.train.7, y = rf.label, importance = TRUE, ntree = 10
 rf.7
 varImpPlot(rf.7)
 
+# CONTENTS FROM DAVE LANGER YOUTUBE VIDEO - Cross Validation
+
+# Before we jump into features engineering we need to establish a methodology
+# for estimating our error rate on the test set (i.e, unseen data). This is 
+# critical, for without this we are more likely to overfit. Let's start with a
+# submission of rf.5 to Kaggle to see if our OOB error estimate is accurate.
+
+# Submit our test records and features
+test.submit.df <- data.combined[892:1309, c("Pclass", "Title", "family.size")]
+
+# Make predictions
+rf.5.preds <- predict(rf.5, test.submit.df)
+table(rf.5.preds)
+
+# Write out a CSB file for submission to Kaggle
+submit.df <- data.frame(PassengerId = rep(892:1309), Survived = rf.5.preds)
+
+write.csv(submit.df, file = "RF_SUB_20160214_1.csv", row.names = FALSE)
+
+# Our submission scores 0.79426, but the OOB predicts that we should score 0.8159.
+# Let's look into cross-validation usingg the caret package to see if we can get
+# more accurate estimates
+library(caret)
+library(doSNOW)
+
+# Research has shown that 10-fold CV repeated 10 times is the best place to start,
+# however there are no hard and fast rules - this is where the experience of the 
+# Data Scientist (i.e., the "art") comes into play. We'll start with 10-fold CV,
+# repeated 10 times and see how it goes.
+
+# Leverage caret to create 100 total folds, but ensure that the ratio of those
+# that survived and perished in each fold matches the overall training set. This
+# is known as stratified cross validation and generally provides better results.
+set.seed(2348)
+cv.10.folds <- createMultiFolds(rf.label, k = 10, times = 10)
+
+#Check stratification
+table(rf.label)
+342 / 549
+
+table(rf.label[cv.10.folds[[33]]])
+308 / 494
+
+# Set up caret's trainControl object per above.
+ctrl.1 <- trainControl(method = "repeatedcv", number = 10, repeats = 10,
+                       index = cv.10.folds)
+
+
 
 
 
