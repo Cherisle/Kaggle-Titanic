@@ -425,7 +425,7 @@ ggplot(data.combined[1:891,], aes(x = AgeRange, fill = Survived)) +
   ylab("Total Count") +
   labs(fill = "Survived")
 
-# This comment used to demonstrate GitHub to Henry
+# GitHub confirmed working
 
 # CONTENTS FROM WILL STANTON WEBSITE ON MACHINE LEARNING with R
 
