@@ -426,8 +426,59 @@ table(rf.label[cv.10.folds[[33]]])
 ctrl.1 <- trainControl(method = "repeatedcv", number = 10, repeats = 10,
                        index = cv.10.folds)
 
+# Set up doSNOW package for multi-core training. This is helpful as we're going
+# to be training a lot of trees.
+# NOTE - This works on Windows and Mac, unlike doMC
+cl <- makeCluster(4, type = "SOCK")
+registerDoSNOW(cl)
 
+# Set seed for reproducibility and train
+set.seed(34324)
+rf.5.cv.1 <- train(x = rf.train.5, y = rf.label, method = "rf", tuneLength = 3,
+                   ntree = 1000, trControl = ctrl.1)
 
+# Shutdown cluster
+stopCluster(cl)
+
+# Check out results
+rf.5.cv.1
+
+# The above is only slightly more pessimistic than the rf.5 00B prediction, but
+# not pessimistic enough. Let's try t-fold CV repeated 10 times.
+set.seed(5983)
+cv.5.folds <- createMultiFolds(rf.label, k = 5, times = 10)
+
+ctrl.2 <- trainControl(method = "repeatedcv", number = 5, repeats = 10,
+                       index = cv.5.folds)
+
+cl <- makeCluster(4, type = "SOCK")
+registerDoSNOW(cl)
+
+set.seed(89472)
+rf.5.cv.2 <- train(x = rf.train.5, y = rf.label, method = "rf", tuneLength = 3,
+                   ntree = 1000, trControl = ctrl.2)
+
+# Shutdown cluster
+stopCluster(cl)
+
+# Check out results
+rf.5.cv.2
+
+# 5-fold CV isn't better. Move to 3-fold CV repeated 10 times.
+set.seed(37596)
+cv.3.folds <- createMultiFolds(rf.label, k = 3, times = 10)
+
+ctrl.3 <- trainControl(method = "repeatedcv", number = 3, repeats = 10, index = cv.3.folds)
+
+cl <- makeCluster(4, type = "SOCK")
+registerDoSNOW(cl)
+
+set.seed(94622)
+rf.5.cv.3 <- train(x = rf.train.5, y = rf.label, method = "rf", tuneLength = 3,
+                   ntree = 64, trControl = ctrl.3)
+
+# Shutdown cluster
+stopCluster(cl)
 
 
 # Additional verification on AgeRange I performed on my own - Michael
