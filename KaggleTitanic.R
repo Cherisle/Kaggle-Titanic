@@ -480,6 +480,125 @@ rf.5.cv.3 <- train(x = rf.train.5, y = rf.label, method = "rf", tuneLength = 3,
 # Shutdown cluster
 stopCluster(cl)
 
+# Beginning of Exploratory Modeling 2 - Dave Langer Video
+
+# Let's use a single decision tree to better understand what's going on with our 
+# features. Obviously Random Forests are far more powerful than single trees,
+# but single trees have the advantage of being easier to understand.
+
+# Install and load packages
+library(rpart)
+library(rpart.plot)
+
+# Per video #5, let's use 3-fold CV repeated 10 times
+
+# Create utility function
+rpart.cv <- function(seed, training, labels, ctrl) {
+  cl <- makeCluster(4, type = "SOCK")
+  registerDoSNOW(cl)
+  
+  set.seed(seed)
+  # Leverage formula interface for training
+  rpart.cv <- train(x = training, y = labels, method = "rpart", tuneLength = 30,
+                    trControl = ctrl)
+  
+  # Shutdown cluster
+  stopCluster(cl)
+  
+  return (rpart.cv)
+}
+
+# Grab features
+features <- c("Pclass", "Title", "family.size")
+rpart.train.1 <- data.combined[1:891, features]
+
+# Run CV and check out results
+rpart.1.cv.1 <- rpart.cv(94622, rpart.train.1, rf.label, ctrl.3)
+rpart.1.cv.1
+
+# Plot
+prp(rpart.1.cv.1$finalModel, type = 0, extra = 1, under = TRUE)
+
+# The plot brings out some interesting lines of investigation. Namely:
+#   1 - Titles of "Mr." and "Other" are predicted to perish at an
+#       overall accuracy rate of 83.2%
+#   2 - Titles of "Master.", "Miss.", & "Mrs." in 1st & 2nd class
+#       are predicted to survive at an overall accuracy rate of 94.9%
+#   3 - Titles of "Master.", "Miss.", & "Mrs." in 3rd class with
+#       family sizes equal to 5, 6, 8, & 11 are predicted to perish
+#       with 100% accuracy.
+#   4 - Titles of "Master.", "Miss.", & "Mrs." in 3rd class with
+#       family sizes not equal to 5, 6, 8, or 11 are predicted to
+#       survive with 59.6% accuracy
+
+# Both rpart and rf confirm that title is important, let's investigate further
+table(data.combined$Title)
+
+# Parse out last name and title
+data.combined[1:25, "Name"]
+
+name.splits <- str_split(data.combined$Name, ",")
+name.splits[1]
+last.names <- sapply(name.splits, "[", 1)
+last.names[1:10]
+
+# Add last names to dataframe in case we find it useful later
+data.combined$last.name <- last.names
+
+# Now for titles
+name.splits <- str_split(sapply(name.splits, "[", 2), " ")
+Titles <- sapply(name.splits, "[", 2)
+unique(Titles)
+
+# What's up with a title of 'the'?
+data.combined[which(Titles == "the"),]
+
+# Re-map titles to be more exact
+Titles[Titles %in% c("Dona.", "the")] <- "Lady."
+
+## NOTE: the code below is missing variables that we skipped in the video
+## Specifically, we are missing 'avg.fare', 'ticket.party.size', and 'new.title'
+
+# Hypothesis - ticket.party.size is highly correlated with avg.fare
+summary(data.combined$avg.fare)
+
+# One missing value, take a look
+data.combined[is.na(data.combined$avg.fare), ]
+
+# Get records for similar passengers and summarize avg. fares
+indexes <- with(data.combined, which(Pclass == "3" & Title == "Mr." & family.size == 1 &
+                                       Ticket != "3701"))
+similar.na.passengers <- data.combined[indexes,]
+summary(similar.na.passengers$avg.fare)
+
+# Use median since close to mean and a little higher than mean
+data.combined[is.na(avg.fare), "avg.fare"] <- 7.840
+
+# Leverage caret's preProcess function to normalize data
+preproc.data.combined <- data.combined[, c("ticket.party.size", "avg.fare")]
+preProc <- preProcess(preproc.data.combined, method = c("center", "scale"))
+
+postproc.data.combined <- predict(preProc, preproc.data.combined)
+
+# Hypothesis refuted for all data
+cor(preproc.data.combined$ticket.party.size, postproc.data.combined$avg.fare)
+
+# How about for just 1st class all-up?
+indexes <- which(data.combined$Pclass == "1")
+cor(postproc.data.combined$ticket.party.size[indexes],
+    postproc.data.combined$avg.fare[indexes])
+# Hypothesis refuted again
+
+# OK, let's see if our feature engineering has made any difference
+features <- c("Pclass", "new.title", "family.size", "ticket.party.size", "avg.fare")
+rpart.train.3 <- data.combined[1:891, features]
+
+# Run CV and check out results
+rpart.3.cv.1 <- rpart.cv(94622, rpart.train.3, rf.label, ctrl.3)
+rpart.3.cv.1
+
+# Plot
+pop(rpart.3.cv.1$finalModel, type = 0, extra = 1, under = TRUE)
 
 # Additional verification on AgeRange I performed on my own - Michael
 rm(data.combined)
